@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b3264f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="รอบเดือน">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>รอบเดือนของฉัน</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600&family=Bai+Jamjuree:wght@500;600;700&display=swap">
+<style>
+/* Layout: one narrow column — cycle ring as the summary, calendar + day log as the working surface, patterns and history below */
+:root{
+  --bg:#f6f3f7; --surface:#ffffff; --fg:#2a1f2e; --muted:#75687a; --line:#e3dbe6;
+  --period:#b3264f; --period-soft:#f6dbe3; --on-period:#ffffff;
+  --fertile:#17796b; --fertile-soft:#d8eeea;
+  --display:"Bai Jamjuree","Anuphan",system-ui,sans-serif;
+  --body:"Anuphan",system-ui,-apple-system,"Noto Sans Thai",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#191319; --surface:#241b25; --fg:#f1e9f2; --muted:#a898ab; --line:#3a2d3c;
+  --period:#ee6a8e; --period-soft:#4a2030; --on-period:#1d0c13;
+  --fertile:#5fc9b8; --fertile-soft:#17393a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#191319; --surface:#241b25; --fg:#f1e9f2; --muted:#a898ab; --line:#3a2d3c;
+  --period:#ee6a8e; --period-soft:#4a2030; --on-period:#1d0c13;
+  --fertile:#5fc9b8; --fertile-soft:#17393a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:20px 48px}
+main{max-width:460px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--display);font-size:1.15rem;font-weight:600;margin:0;letter-spacing:.01em}
+h2{font-family:var(--display);font-size:1rem;font-weight:600;margin:0}
+h3{font-size:.8rem;font-weight:500;color:var(--muted);margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--period);outline-offset:2px}
+.note{background:var(--fertile-soft);border-radius:10px;padding:10px 14px;font-size:.9rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.ring{position:relative;width:min(240px,100%);margin-inline:auto}
+.ring svg{display:block;width:100%;height:auto}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 44px}
+.big{font-family:var(--display);font-weight:700;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.sub{font-size:.85rem;color:var(--muted)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin:0}
+.facts div{min-width:0}
+.facts dt{font-size:.8rem;color:var(--muted)}
+.facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.primary{background:var(--period);color:var(--on-period);border:0;border-radius:12px;padding:12px;font-weight:600;width:100%}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.calhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.calhead button{width:40px;height:40px;padding:0;font-size:1.1rem}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{font-size:.75rem;color:var(--muted);text-align:center}
+.day{aspect-ratio:1;border:1.5px solid transparent;border-radius:50%;background:none;padding:0;font-variant-numeric:tabular-nums;font-size:.95rem;position:relative}
+.day.fertile{background:var(--fertile-soft)}
+.day.ov::after{content:"";position:absolute;left:50%;bottom:4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--fertile)}
+.day.logged::before{content:"";position:absolute;right:3px;top:3px;width:6px;height:6px;border-radius:50%;background:var(--fg);border:1px solid var(--surface)}
+.day.pred{border:1.5px dashed var(--period);background:none}
+.day.period{background:var(--period);color:var(--on-period);font-weight:600}
+.day.today{text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.day.sel{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--fg)}
+.day.future{color:var(--muted);cursor:default}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.daylog{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.grp{display:flex;flex-direction:column;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--surface);border-color:var(--fg)}
+.chip.per[aria-pressed="true"]{background:var(--period);color:var(--on-period);border-color:var(--period)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted);font-size:.8rem}
+td.r,th.r{text-align:right}
+details summary{cursor:pointer;font-weight:600}
+textarea,input[type=number]{width:100%;font:inherit;font-size:.9rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px}
+textarea{min-height:64px}
+input[type=number]{max-width:140px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.small{font-size:.8rem;color:var(--muted);margin:0}
+</style>
+
+</head>
+<body>
+<main>
+  <h1>รอบเดือนของฉัน</h1>
+
+  <div class="note" id="demo" hidden><b>นี่คือข้อมูลตัวอย่าง</b> เมื่อคุณบันทึกรายการแรก ตัวอย่างทั้งหมดจะถูกล้างออก</div>
+
+  <section class="panel">
+    <div class="ring">
+      <svg viewBox="0 0 200 200" id="ring" role="img" aria-label="วงรอบเดือน"></svg>
+      <div class="mid"><span class="big" id="big">–</span><span class="sub" id="bigsub"></span></div>
+    </div>
+    <dl class="facts">
+      <div><dt>รอบถัดไป (คาดการณ์)</dt><dd id="fNext">–</dd></div>
+      <div><dt>วันไข่ตก (ประมาณ)</dt><dd id="fOv">–</dd></div>
+      <div><dt>ความยาวรอบเฉลี่ย</dt><dd id="fCyc">–</dd></div>
+      <div><dt>ประจำเดือนมาเฉลี่ย</dt><dd id="fLen">–</dd></div>
+    </dl>
+    <button class="primary" id="todayBtn" type="button"></button>
+  </section>
+
+  <section class="panel">
+    <div class="calhead">
+      <button class="ghost" id="prev" type="button" aria-label="เดือนก่อน">‹</button>
+      <h2 id="monthLbl"></h2>
+      <button class="ghost" id="next" type="button" aria-label="เดือนถัดไป">›</button>
+    </div>
+    <div class="grid" id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--period)"></i>ประจำเดือน</span>
+      <span><i style="border:1.5px dashed var(--period)"></i>คาดการณ์</span>
+      <span><i style="background:var(--fertile-soft)"></i>ช่วงไข่ตก</span>
+      <span><i style="background:var(--fg);width:7px;height:7px"></i>มีบันทึกอาการ</span>
+    </div>
+    <div class="daylog" id="daylog"></div>
+  </section>
+
+  <section class="panel">
+    <h2>รูปแบบอาการ</h2>
+    <div class="tw"><table>
+      <thead><tr><th>อาการ</th><th class="r">ครั้ง</th><th class="r">มักเกิดวันที่ของรอบ</th></tr></thead>
+      <tbody id="ins"></tbody>
+    </table></div>
+  </section>
+
+  <section class="panel">
+    <h2>ประวัติรอบเดือน</h2>
+    <div class="tw"><table>
+      <thead><tr><th>วันเริ่ม</th><th class="r">มากี่วัน</th><th class="r">ความยาวรอบ</th></tr></thead>
+      <tbody id="hist"></tbody>
+    </table></div>
+  </section>
+
+  <details class="panel">
+    <summary>ตั้งค่าและสำรองข้อมูล</summary>
+    <label class="row"><input type="checkbox" id="extra"> แสดงรายการเสริม (ตกขาว อุณหภูมิ เพศสัมพันธ์ ผลตรวจ)</label>
+    <p class="small">ข้อมูลเก็บอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น ไม่ถูกส่งไปที่ใด หากล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลจะหาย ให้คัดลอกรหัสสำรองเก็บไว้</p>
+    <textarea id="backup" aria-label="รหัสสำรองข้อมูล" placeholder="วางรหัสสำรองที่นี่เพื่อกู้คืน"></textarea>
+    <div class="row">
+      <button class="ghost" id="copy" type="button">คัดลอกรหัสสำรอง</button>
+      <button class="ghost" id="restore" type="button">กู้คืนจากรหัส</button>
+      <button class="ghost" id="wipe" type="button">ลบข้อมูลทั้งหมด</button>
+    </div>
+    <p class="small" id="msg" role="status"></p>
+  </details>
+
+  <p class="small">ค่าทั้งหมดเป็นการประมาณจากประวัติที่บันทึก ไม่ควรใช้เพื่อคุมกำเนิดหรือวินิจฉัยทางการแพทย์ หากรอบเดือนผิดปกติควรปรึกษาแพทย์</p>
+</main>
+
+<script>
+(function(){
+const KEY='cycle-days-v1', LKEY='cycle-logs-v1', XKEY='cycle-extra-v1', DAY=864e5;
+const MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MONF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const PAIN=['ไม่ปวด','เล็กน้อย','ปานกลาง','มาก'], MOOD=['ปกติ','หงุดหงิด','เศร้า','วิตกกังวล'];
+const SYM=['ปวดหัว','ปวดหลัง','คัดตึงเต้านม','ท้องอืด','สิว','อ่อนเพลีย','เลือดออกกะปริบกะปรอย'];
+const FIELDS=[
+  {k:'f',t:'ปริมาณประจำเดือน',o:['น้อย','ปานกลาง','มาก'],per:1},
+  {k:'p',t:'ปวดท้องน้อย',o:PAIN},
+  {k:'m',t:'อารมณ์',o:MOOD},
+  {k:'s',t:'อาการทางกาย',o:SYM,multi:1},
+  {k:'d',t:'ตกขาว',o:['แห้ง','เหนียว','ครีม','ใสยืดคล้ายไข่ขาว'],x:1},
+  {k:'x',t:'มีเพศสัมพันธ์',o:['ป้องกัน','ไม่ป้องกัน'],x:1},
+  {k:'o',t:'ผลตรวจ',o:['ตรวจไข่ตก: บวก','ตรวจไข่ตก: ลบ','ตรวจครรภ์: บวก','ตรวจครรภ์: ลบ'],multi:1,x:1}
+];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const now=new Date(), today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/DAY;
+const fmt=n=>{const d=new Date(n*DAY);return d.getUTCDate()+' '+MON[d.getUTCMonth()]};
+let days=new Set(), logs={}, extra=false, demo=false, sel=today, vy=now.getFullYear(), vm=now.getMonth(), wipeArmed=false;
+
+function load(){
+  let a=null,l=null;
+  try{a=JSON.parse(localStorage.getItem(KEY));l=JSON.parse(localStorage.getItem(LKEY));extra=localStorage.getItem(XKEY)==='1'}catch(e){}
+  if(Array.isArray(a)||(l&&typeof l==='object')){
+    days=new Set(Array.isArray(a)?a.filter(Number.isFinite):[]); logs=l&&typeof l==='object'?l:{};
+  }else{
+    demo=true;
+    [[11,5],[39,5],[68,4],[95,5]].forEach(([back,len])=>{const s=today-back;
+      for(let i=0;i<len;i++)days.add(s+i);
+      logs[s]={f:1,p:2,m:1,s:[1]}; logs[s+1]={f:2,p:1,s:[5]}; logs[s-2]={m:1,s:[3,2]}});
+  }
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify([...days]));localStorage.setItem(LKEY,JSON.stringify(logs));localStorage.setItem(XKEY,extra?'1':'0')}catch(e){}}
+function real(){if(demo){demo=false;days=new Set();logs={}}}
+
+function model(){
+  const s=[...days].sort((a,b)=>a-b), P=[];
+  for(const d of s){const l=P[P.length-1]; if(l&&d-l.e<=2)l.e=d; else P.push({s:d,e:d})}
+  const cy=[]; for(let i=1;i<P.length;i++){const c=P[i].s-P[i-1].s; P[i-1].cyc=c; if(c>=15&&c<=60)cy.push(c)}
+  const mean=a=>Math.round(a.reduce((x,y)=>x+y,0)/a.length);
+  const done=P.filter(p=>p.e<today-1||P.length===1);
+  const cyc=cy.length?mean(cy.slice(-6)):28;
+  const len=done.length?mean(done.slice(-6).map(p=>p.e-p.s+1)):5;
+  const last=P[P.length-1]||null, pred=new Set(), fert=new Set(), ov=new Set();
+  if(last){for(let k=0;k<=8;k++){const st=last.s+cyc*k, o=st+cyc-14;
+    if(k>0)for(let i=0;i<len;i++)if(st+i>=today)pred.add(st+i);
+    ov.add(o); for(let i=-5;i<=1;i++)fert.add(o+i)}}
+  return{P,cyc,len,last,pred,fert,ov,known:cy.length>0};
+}
+
+function arc(a0,a1,r){
+  const p=a=>{const t=a*2*Math.PI-Math.PI/2;return (100+r*Math.cos(t)).toFixed(2)+' '+(100+r*Math.sin(t)).toFixed(2)};
+  return 'M'+p(a0)+' A'+r+' '+r+' 0 '+(a1-a0>.5?1:0)+' 1 '+p(a1);
+}
+
+function renderDay(){
+  const L=logs[sel]||{}, isP=days.has(sel), dd=new Date(sel*DAY);
+  let h='<h2>'+(sel===today?'วันนี้ · ':'')+dd.getUTCDate()+' '+MONF[dd.getUTCMonth()]+' '+(dd.getUTCFullYear()+543)+'</h2>';
+  h+='<div class="chips"><button type="button" class="chip per" data-per="1" aria-pressed="'+isP+'">มีประจำเดือน</button></div>';
+  for(const F of FIELDS){
+    if(F.x&&!extra)continue; if(F.per&&!isP)continue;
+    h+='<div class="grp"><h3>'+F.t+'</h3><div class="chips">'+F.o.map((o,i)=>{
+      const on=F.multi?(L[F.k]||[]).includes(i):L[F.k]===i;
+      return '<button type="button" class="chip" data-k="'+F.k+'" data-i="'+i+'" aria-pressed="'+on+'">'+o+'</button>'}).join('')+'</div></div>';
+  }
+  if(extra)h+='<div class="grp"><h3><label for="temp">อุณหภูมิตอนตื่นนอน (°C)</label></h3><input type="number" id="temp" inputmode="decimal" step="0.01" min="34" max="42" placeholder="36.50" value="'+(L.t!=null?esc(L.t):'')+'"></div>';
+  h+='<div class="grp"><h3><label for="memo">โน้ต</label></h3><textarea id="memo" placeholder="เช่น กินยาแก้ปวด นอนน้อย">'+esc(L.n||'')+'</textarea></div>';
+  $('daylog').innerHTML=h;
+}
+
+function insights(P){
+  const starts=P.map(p=>p.s), acc={};
+  const add=(name,cd)=>(acc[name]=acc[name]||[]).push(cd);
+  for(const k in logs){const d=+k, L=logs[k]; let st=null;
+    for(const s of starts){if(s<=d)st=s; else break}
+    if(st==null||d-st>60)continue; const cd=d-st+1;
+    if(L.p>0)add('ปวดท้องน้อย',cd);
+    if(L.m>0)add(MOOD[L.m],cd);
+    (L.s||[]).forEach(i=>add(SYM[i],cd));
+  }
+  const rows=Object.entries(acc).filter(e=>e[1].length>=2).sort((a,b)=>b[1].length-a[1].length).slice(0,8).map(([n,a])=>{
+    a.sort((x,y)=>x-y); const lo=a[Math.floor((a.length-1)*.25)], hi=a[Math.ceil((a.length-1)*.75)];
+    return '<tr><td>'+n+'</td><td class="r">'+a.length+'</td><td class="r">'+(lo===hi?'วันที่ '+lo:'วันที่ '+lo+'–'+hi)+'</td></tr>'});
+  $('ins').innerHTML=rows.join('')||'<tr><td colspan="3">บันทึกอาการเดียวกันอย่างน้อย 2 ครั้งเพื่อดูว่ามักเกิดช่วงไหนของรอบ</td></tr>';
+}
+
+function render(){
+  const m=model();
+  $('demo').hidden=!demo; $('extra').checked=extra;
+  let svg='<circle cx="100" cy="100" r="84" fill="none" stroke="var(--line)" stroke-width="14"/>';
+  if(m.last){
+    const c=m.cyc, o=c-14, f0=Math.max(m.len,o-5)/c, f1=Math.min(c,o+2)/c;
+    if(f1>f0)svg+='<path d="'+arc(f0,f1,84)+'" fill="none" stroke="var(--fertile)" stroke-width="14"/>';
+    svg+='<path d="'+arc(0,m.len/c,84)+'" fill="none" stroke="var(--period)" stroke-width="14" stroke-linecap="round"/>';
+    const cd=today-m.last.s+1, t=(Math.min(cd,c)-.5)/c*2*Math.PI-Math.PI/2;
+    svg+='<circle cx="'+(100+84*Math.cos(t)).toFixed(2)+'" cy="'+(100+84*Math.sin(t)).toFixed(2)+'" r="9" fill="var(--surface)" stroke="var(--fg)" stroke-width="3"/>';
+    const nx=m.last.s+c, left=nx-today;
+    if(days.has(today)){$('big').textContent=cd;$('bigsub').textContent='วันที่ของประจำเดือน'}
+    else if(left>0){$('big').textContent=left;$('bigsub').textContent='วัน ถึงรอบถัดไป'}
+    else if(left===0){$('big').textContent='วันนี้';$('bigsub').textContent='คาดว่าประจำเดือนจะมา'}
+    else{$('big').textContent=-left;$('bigsub').textContent='วัน ช้ากว่าที่คาด'}
+    $('fNext').textContent=fmt(nx)+' (วันที่ '+cd+' ของรอบ)';
+    let ovd=nx-14; if(ovd<today)ovd+=c;
+    $('fOv').textContent=fmt(ovd);
+  }else{
+    $('big').textContent='–';$('bigsub').textContent='ยังไม่มีข้อมูล เลือกวันแรกที่ประจำเดือนมาในปฏิทิน';
+    $('fNext').textContent='–';$('fOv').textContent='–';
+  }
+  $('ring').innerHTML=svg;
+  $('fCyc').textContent=m.cyc+' วัน'+(m.known?'':' (ค่าเริ่มต้น)');
+  $('fLen').textContent=m.len+' วัน'+(m.P.length?'':' (ค่าเริ่มต้น)');
+  $('todayBtn').textContent=days.has(today)&&!demo?'ยกเลิกประจำเดือนของวันนี้':'ประจำเดือนมาวันนี้';
+  $('monthLbl').textContent=MONF[vm]+' '+(vy+543);
+  const first=Date.UTC(vy,vm,1)/DAY, dow=new Date(first*DAY).getUTCDay(), n=new Date(Date.UTC(vy,vm+1,0)).getUTCDate();
+  let h=['อา','จ','อ','พ','พฤ','ศ','ส'].map(d=>'<div class="dow">'+d+'</div>').join('');
+  for(let i=0;i<dow;i++)h+='<span></span>';
+  for(let i=0;i<n;i++){const d=first+i, c=['day'], lab=[];
+    if(days.has(d)){c.push('period');lab.push('มีประจำเดือน')}
+    else if(m.pred.has(d)){c.push('pred');lab.push('คาดว่ามีประจำเดือน')}
+    else if(m.fert.has(d)){c.push('fertile');lab.push('ช่วงไข่ตก');if(m.ov.has(d))c.push('ov')}
+    if(logs[d]){c.push('logged');lab.push('มีบันทึกอาการ')}
+    if(d===today)c.push('today'); if(d===sel)c.push('sel'); if(d>today)c.push('future');
+    h+='<button type="button" class="'+c.join(' ')+'" data-d="'+d+'"'+(d>today?' disabled':'')+' aria-label="'+(i+1)+' '+MONF[vm]+' '+lab.join(' ')+'">'+(i+1)+'</button>'}
+  $('cal').innerHTML=h;
+  renderDay(); insights(m.P);
+  const rows=m.P.slice().reverse().slice(0,12).map(p=>'<tr><td>'+fmt(p.s)+' '+(new Date(p.s*DAY).getUTCFullYear()+543)+'</td><td class="r">'+(p.e-p.s+1)+' วัน</td><td class="r">'+(p.cyc?p.cyc+' วัน':'รอบปัจจุบัน')+'</td></tr>');
+  $('hist').innerHTML=rows.join('')||'<tr><td colspan="3">ยังไม่มีประวัติ</td></tr>';
+}
+
+function togglePeriod(d){
+  real();
+  if(days.has(d)){days.delete(d); if(logs[d]){delete logs[d].f; tidy(d)}} else days.add(d);
+  save();render();
+}
+function tidy(d){const L=logs[d]; if(!L)return;
+  for(const k in L){const v=L[k]; if(v==null||v===''||(Array.isArray(v)&&!v.length))delete L[k]}
+  if(!Object.keys(L).length)delete logs[d]}
+function setField(k,v){
+  if(demo){real()}
+  const L=logs[sel]=logs[sel]||{}; L[k]=v; tidy(sel); save();
+}
+
+$('cal').addEventListener('click',e=>{const b=e.target.closest('button[data-d]');if(b&&!b.disabled){sel=+b.dataset.d;render()}});
+$('daylog').addEventListener('click',e=>{
+  const b=e.target.closest('button.chip'); if(!b)return;
+  if(b.dataset.per){togglePeriod(sel);return}
+  const k=b.dataset.k, i=+b.dataset.i, F=FIELDS.find(f=>f.k===k), wasDemo=demo;
+  const cur=wasDemo?{}:(logs[sel]||{});
+  if(F.multi){const a=(cur[k]||[]).slice(), p=a.indexOf(i); p<0?a.push(i):a.splice(p,1); setField(k,a)}
+  else setField(k,cur[k]===i?null:i);
+  render();
+});
+$('daylog').addEventListener('change',e=>{
+  if(e.target.id==='memo'){setField('n',e.target.value.trim());render()}
+  if(e.target.id==='temp'){const v=parseFloat(e.target.value);setField('t',v>=34&&v<=42?v:null);render()}
+});
+$('todayBtn').addEventListener('click',()=>{sel=today;vy=now.getFullYear();vm=now.getMonth();togglePeriod(today)});
+$('prev').addEventListener('click',()=>{if(--vm<0){vm=11;vy--}render()});
+$('next').addEventListener('click',()=>{if(++vm>11){vm=0;vy++}render()});
+$('extra').addEventListener('change',e=>{extra=e.target.checked;try{localStorage.setItem(XKEY,extra?'1':'0')}catch(x){}render()});
+$('copy').addEventListener('click',()=>{
+  const t=JSON.stringify(demo?{days:[],logs:{}}:{days:[...days].sort((a,b)=>a-b),logs});
+  $('backup').value=t;
+  const done=()=>$('msg').textContent='คัดลอกแล้ว เก็บรหัสนี้ไว้ในที่ปลอดภัย';
+  const fb=()=>{$('backup').select();$('msg').textContent='เลือกข้อความแล้ว กดคัดลอกเอง'};
+  try{navigator.clipboard.writeText(t).then(done,fb)}catch(e){fb()}
+});
+$('restore').addEventListener('click',()=>{
+  try{let o=JSON.parse($('backup').value); if(Array.isArray(o))o={days:o,logs:{}};
+    if(!o||!Array.isArray(o.days)||!o.days.every(Number.isInteger))throw 0;
+    days=new Set(o.days);logs=o.logs&&typeof o.logs==='object'?o.logs:{};demo=false;save();render();
+    $('msg').textContent='กู้คืนแล้ว '+o.days.length+' วัน'}
+  catch(e){$('msg').textContent='รหัสไม่ถูกต้อง วางรหัสที่คัดลอกไว้ทั้งหมดแล้วลองอีกครั้ง'}
+});
+$('wipe').addEventListener('click',()=>{
+  if(!wipeArmed){wipeArmed=true;$('wipe').textContent='กดอีกครั้งเพื่อยืนยันการลบ';return}
+  wipeArmed=false;$('wipe').textContent='ลบข้อมูลทั้งหมด';days=new Set();logs={};demo=false;save();render();$('msg').textContent='ลบข้อมูลแล้ว';
+});
+load();render();
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}</script>
+</body>
+</html>
