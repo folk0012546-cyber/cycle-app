@@ -13,51 +13,65 @@
 <title>รอบเดือนของฉัน</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600&family=Bai+Jamjuree:wght@500;600;700&display=swap">
 <style>
-/* Layout: one narrow column — cycle ring as the summary, calendar + day log as the working surface, patterns and history below */
+/* Layout: phone app — four views behind a bottom tab bar; the berry hero card with the cycle ring is the one bold element, everything else stays quiet */
 :root{
-  --bg:#f6f3f7; --surface:#ffffff; --fg:#2a1f2e; --muted:#75687a; --line:#e3dbe6;
-  --period:#b3264f; --period-soft:#f6dbe3; --on-period:#ffffff;
-  --fertile:#17796b; --fertile-soft:#d8eeea;
+  --bg:#f7f2f5; --surface:#ffffff; --fg:#2a1f2e; --muted:#7a6b7e; --line:#ebe2ec;
+  --period:#b3264f; --period-soft:#fbe3ea; --on-period:#ffffff;
+  --fertile:#17796b; --fertile-soft:#dbf1ed;
+  --hero-a:#8e1f4a; --hero-b:#c93f63; --hero-ink:#ffffff; --hero-soft:#fbdde5; --hero-track:#ffffff38; --hero-mint:#a5ecde; --hero-tile:#ffffff24;
+  --shadow:0 1px 2px #2a1f2e0d,0 8px 24px #2a1f2e0f;
   --display:"Bai Jamjuree","Anuphan",system-ui,sans-serif;
   --body:"Anuphan",system-ui,-apple-system,"Noto Sans Thai",sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#191319; --surface:#241b25; --fg:#f1e9f2; --muted:#a898ab; --line:#3a2d3c;
-  --period:#ee6a8e; --period-soft:#4a2030; --on-period:#1d0c13;
-  --fertile:#5fc9b8; --fertile-soft:#17393a; color-scheme:dark}}
+  --bg:#171117; --surface:#231a24; --fg:#f3ebf4; --muted:#ab9bae; --line:#382b3a;
+  --period:#f07a9a; --period-soft:#4a2031; --on-period:#1d0c13;
+  --fertile:#6bd3c2; --fertile-soft:#173a3a;
+  --hero-a:#4a1630; --hero-b:#8f2a4b; --hero-ink:#ffffff; --hero-soft:#f3c9d5; --hero-track:#ffffff2e; --hero-mint:#8fe0d2; --hero-tile:#ffffff1c;
+  --shadow:0 1px 2px #00000040,0 8px 24px #00000040; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#191319; --surface:#241b25; --fg:#f1e9f2; --muted:#a898ab; --line:#3a2d3c;
-  --period:#ee6a8e; --period-soft:#4a2030; --on-period:#1d0c13;
-  --fertile:#5fc9b8; --fertile-soft:#17393a; color-scheme:dark}
+  --bg:#171117; --surface:#231a24; --fg:#f3ebf4; --muted:#ab9bae; --line:#382b3a;
+  --period:#f07a9a; --period-soft:#4a2031; --on-period:#1d0c13;
+  --fertile:#6bd3c2; --fertile-soft:#173a3a;
+  --hero-a:#4a1630; --hero-b:#8f2a4b; --hero-ink:#ffffff; --hero-soft:#f3c9d5; --hero-track:#ffffff2e; --hero-mint:#8fe0d2; --hero-tile:#ffffff1c;
+  --shadow:0 1px 2px #00000040,0 8px 24px #00000040; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:20px 48px}
-main{max-width:460px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
-h1{font-family:var(--display);font-size:1.15rem;font-weight:600;margin:0;letter-spacing:.01em}
-h2{font-family:var(--display);font-size:1rem;font-weight:600;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:18px 108px;-webkit-tap-highlight-color:transparent}
+main{max-width:460px;margin-inline:auto;display:flex;flex-direction:column;gap:16px}
+.view{display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-direction:column;padding-inline:4px}
+h1{font-family:var(--display);font-size:1.5rem;font-weight:700;margin:0;line-height:1.25}
+.date{font-size:.85rem;color:var(--muted)}
+h2{font-family:var(--display);font-size:1.05rem;font-weight:600;margin:0}
 h3{font-size:.8rem;font-weight:500;color:var(--muted);margin:0}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--period);outline-offset:2px}
-.note{background:var(--fertile-soft);border-radius:10px;padding:10px 14px;font-size:.9rem}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
-.ring{position:relative;width:min(240px,100%);margin-inline:auto}
+.note{background:var(--fertile-soft);border-radius:14px;padding:10px 14px;font-size:.9rem}
+.panel{background:var(--surface);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.hero{--line:var(--hero-track);--period:var(--hero-ink);--on-period:var(--hero-a);--fertile:var(--hero-mint);--fg:var(--hero-ink);--surface:var(--hero-b);--muted:var(--hero-soft);
+  background:linear-gradient(155deg,var(--hero-b),var(--hero-a));color:var(--hero-ink);border-radius:28px;padding:22px 18px 18px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow)}
+.ring{position:relative;width:min(232px,100%);margin-inline:auto}
 .ring svg{display:block;width:100%;height:auto}
-.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 44px}
-.big{font-family:var(--display);font-weight:700;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 44px;gap:2px}
+.big{font-family:var(--display);font-weight:700;font-size:3.2rem;line-height:1;font-variant-numeric:tabular-nums}
 .sub{font-size:.85rem;color:var(--muted)}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin:0}
-.facts div{min-width:0}
-.facts dt{font-size:.8rem;color:var(--muted)}
-.facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
-.primary{background:var(--period);color:var(--on-period);border:0;border-radius:12px;padding:12px;font-weight:600;width:100%}
-.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.phase{align-self:center;background:var(--hero-tile);border-radius:999px;padding:5px 14px;font-size:.9rem;font-weight:500;text-align:center}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+.facts div{min-width:0;background:var(--hero-tile);border-radius:16px;padding:10px 12px}
+.facts dt{font-size:.75rem;color:var(--muted)}
+.facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;font-size:.95rem}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.primary{background:var(--period);color:var(--on-period);border:0;border-radius:16px;padding:13px 10px;font-weight:600;min-width:0}
+.secondary{background:var(--hero-tile);color:var(--hero-ink);border:0;border-radius:16px;padding:13px 10px;font-weight:600;min-width:0}
+.ghost{background:none;border:1px solid var(--line);border-radius:12px;padding:9px 13px}
 .calhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.calhead button{width:40px;height:40px;padding:0;font-size:1.1rem}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.dow{font-size:.75rem;color:var(--muted);text-align:center}
-.day{aspect-ratio:1;border:1.5px solid transparent;border-radius:50%;background:none;padding:0;font-variant-numeric:tabular-nums;font-size:.95rem;position:relative}
+.calhead button{width:40px;height:40px;padding:0;font-size:1.2rem;border-radius:50%}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{font-size:.75rem;color:var(--muted);text-align:center;padding-bottom:2px}
+.day{aspect-ratio:1;border:1.5px solid transparent;border-radius:14px;background:none;padding:0;font-variant-numeric:tabular-nums;font-size:.95rem;position:relative}
 .day.fertile{background:var(--fertile-soft)}
 .day.ov::after{content:"";position:absolute;left:50%;bottom:4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--fertile)}
-.day.logged::before{content:"";position:absolute;right:3px;top:3px;width:6px;height:6px;border-radius:50%;background:var(--fg);border:1px solid var(--surface)}
+.day.logged::before{content:"";position:absolute;right:4px;top:4px;width:6px;height:6px;border-radius:50%;background:var(--fg);border:1px solid var(--surface)}
 .day.pred{border:1.5px dashed var(--period);background:none}
 .day.period{background:var(--period);color:var(--on-period);font-weight:600}
 .day.today{text-decoration:underline;text-underline-offset:3px;font-weight:700}
@@ -65,94 +79,121 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 .day.future{color:var(--muted);cursor:default}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
-.daylog{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:12px}
-.grp{display:flex;flex-direction:column;gap:6px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.9rem}
-.chip[aria-pressed="true"]{background:var(--fg);color:var(--surface);border-color:var(--fg)}
-.chip.per[aria-pressed="true"]{background:var(--period);color:var(--on-period);border-color:var(--period)}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.daylog{display:flex;flex-direction:column;gap:14px}
+.grp{display:flex;flex-direction:column;gap:7px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:var(--bg);border:1.5px solid transparent;border-radius:999px;padding:8px 14px;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--period-soft);border-color:var(--period);font-weight:600}
+.chip.per{border-color:var(--period);background:none;color:var(--period);font-weight:600}
+.chip.per[aria-pressed="true"]{background:var(--period);color:var(--on-period)}
 .tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
-th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
-th{font-weight:500;color:var(--muted);font-size:.8rem}
+table{border-collapse:collapse;width:100%;font-size:.92rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:10px 4px;border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+th{font-weight:500;color:var(--muted);font-size:.78rem}
 td.r,th.r{text-align:right}
-details summary{cursor:pointer;font-weight:600}
-textarea,input[type=number]{width:100%;font:inherit;font-size:.9rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px}
-textarea{min-height:64px}
+textarea,input[type=number]{width:100%;font:inherit;font-size:.92rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+textarea{min-height:72px}
 input[type=number]{max-width:140px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--period);flex:none}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label.row{flex-wrap:nowrap}
 .small{font-size:.8rem;color:var(--muted);margin:0}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabs div{max-width:460px;margin-inline:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.tabs button{background:none;border:0;border-radius:16px;padding:7px 2px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem;color:var(--muted);min-width:0}
+.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-current="page"]{color:var(--period);background:var(--period-soft);font-weight:600}
 </style>
 
 </head>
 <body>
 <main>
-  <h1>รอบเดือนของฉัน</h1>
-
+  <header><h1>รอบเดือนของฉัน</h1><span class="date" id="todayLbl"></span></header>
   <div class="note" id="demo" hidden><b>นี่คือข้อมูลตัวอย่าง</b> เมื่อคุณบันทึกรายการแรก ตัวอย่างทั้งหมดจะถูกล้างออก</div>
 
-  <section class="panel">
-    <div class="ring">
-      <svg viewBox="0 0 200 200" id="ring" role="img" aria-label="วงรอบเดือน"></svg>
-      <div class="mid"><span class="big" id="big">–</span><span class="sub" id="bigsub"></span></div>
-    </div>
-    <dl class="facts">
-      <div><dt>รอบถัดไป (คาดการณ์)</dt><dd id="fNext">–</dd></div>
-      <div><dt>วันไข่ตก (ประมาณ)</dt><dd id="fOv">–</dd></div>
-      <div><dt>ความยาวรอบเฉลี่ย</dt><dd id="fCyc">–</dd></div>
-      <div><dt>ประจำเดือนมาเฉลี่ย</dt><dd id="fLen">–</dd></div>
-    </dl>
-    <button class="primary" id="todayBtn" type="button"></button>
-  </section>
+  <div class="view" data-view="home">
+    <section class="hero">
+      <div class="ring">
+        <svg viewBox="0 0 200 200" id="ring" role="img" aria-label="วงรอบเดือน"></svg>
+        <div class="mid"><span class="big" id="big">–</span><span class="sub" id="bigsub"></span></div>
+      </div>
+      <div class="phase" id="phase"></div>
+      <dl class="facts">
+        <div><dt>รอบถัดไป (คาดการณ์)</dt><dd id="fNext">–</dd></div>
+        <div><dt>วันไข่ตก (ประมาณ)</dt><dd id="fOv">–</dd></div>
+        <div><dt>ความยาวรอบเฉลี่ย</dt><dd id="fCyc">–</dd></div>
+        <div><dt>ประจำเดือนมาเฉลี่ย</dt><dd id="fLen">–</dd></div>
+      </dl>
+      <div class="actions">
+        <button class="primary" id="todayBtn" type="button"></button>
+        <button class="secondary" id="logBtn" type="button">บันทึกอาการวันนี้</button>
+      </div>
+    </section>
+    <p class="small">ค่าทั้งหมดเป็นการประมาณจากประวัติที่บันทึก ไม่ควรใช้เพื่อคุมกำเนิดหรือวินิจฉัยทางการแพทย์ หากรอบเดือนผิดปกติควรปรึกษาแพทย์</p>
+  </div>
 
-  <section class="panel">
-    <div class="calhead">
-      <button class="ghost" id="prev" type="button" aria-label="เดือนก่อน">‹</button>
-      <h2 id="monthLbl"></h2>
-      <button class="ghost" id="next" type="button" aria-label="เดือนถัดไป">›</button>
-    </div>
-    <div class="grid" id="cal"></div>
-    <div class="legend">
-      <span><i style="background:var(--period)"></i>ประจำเดือน</span>
-      <span><i style="border:1.5px dashed var(--period)"></i>คาดการณ์</span>
-      <span><i style="background:var(--fertile-soft)"></i>ช่วงไข่ตก</span>
-      <span><i style="background:var(--fg);width:7px;height:7px"></i>มีบันทึกอาการ</span>
-    </div>
-    <div class="daylog" id="daylog"></div>
-  </section>
+  <div class="view" data-view="cal" hidden>
+    <section class="panel">
+      <div class="calhead">
+        <button class="ghost" id="prev" type="button" aria-label="เดือนก่อน">‹</button>
+        <h2 id="monthLbl"></h2>
+        <button class="ghost" id="next" type="button" aria-label="เดือนถัดไป">›</button>
+      </div>
+      <div class="grid" id="cal"></div>
+      <div class="legend">
+        <span><i style="background:var(--period)"></i>ประจำเดือน</span>
+        <span><i style="border:1.5px dashed var(--period)"></i>คาดการณ์</span>
+        <span><i style="background:var(--fertile-soft)"></i>ช่วงไข่ตก</span>
+        <span><i style="background:var(--fg);width:7px;height:7px;border-radius:50%"></i>มีบันทึกอาการ</span>
+      </div>
+    </section>
+    <section class="panel"><div class="daylog" id="daylog"></div></section>
+  </div>
 
-  <section class="panel">
-    <h2>รูปแบบอาการ</h2>
-    <div class="tw"><table>
-      <thead><tr><th>อาการ</th><th class="r">ครั้ง</th><th class="r">มักเกิดวันที่ของรอบ</th></tr></thead>
-      <tbody id="ins"></tbody>
-    </table></div>
-  </section>
+  <div class="view" data-view="stats" hidden>
+    <section class="panel">
+      <h2>รูปแบบอาการ</h2>
+      <div class="tw"><table>
+        <thead><tr><th>อาการ</th><th class="r">ครั้ง</th><th class="r">มักเกิดวันที่ของรอบ</th></tr></thead>
+        <tbody id="ins"></tbody>
+      </table></div>
+    </section>
+    <section class="panel">
+      <h2>ประวัติรอบเดือน</h2>
+      <div class="tw"><table>
+        <thead><tr><th>วันเริ่ม</th><th class="r">มากี่วัน</th><th class="r">ความยาวรอบ</th></tr></thead>
+        <tbody id="hist"></tbody>
+      </table></div>
+    </section>
+  </div>
 
-  <section class="panel">
-    <h2>ประวัติรอบเดือน</h2>
-    <div class="tw"><table>
-      <thead><tr><th>วันเริ่ม</th><th class="r">มากี่วัน</th><th class="r">ความยาวรอบ</th></tr></thead>
-      <tbody id="hist"></tbody>
-    </table></div>
-  </section>
-
-  <details class="panel">
-    <summary>ตั้งค่าและสำรองข้อมูล</summary>
-    <label class="row"><input type="checkbox" id="extra"> แสดงรายการเสริม (ตกขาว อุณหภูมิ เพศสัมพันธ์ ผลตรวจ)</label>
-    <p class="small">ข้อมูลเก็บอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น ไม่ถูกส่งไปที่ใด หากล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลจะหาย ให้คัดลอกรหัสสำรองเก็บไว้</p>
-    <textarea id="backup" aria-label="รหัสสำรองข้อมูล" placeholder="วางรหัสสำรองที่นี่เพื่อกู้คืน"></textarea>
-    <div class="row">
-      <button class="ghost" id="copy" type="button">คัดลอกรหัสสำรอง</button>
-      <button class="ghost" id="restore" type="button">กู้คืนจากรหัส</button>
-      <button class="ghost" id="wipe" type="button">ลบข้อมูลทั้งหมด</button>
-    </div>
-    <p class="small" id="msg" role="status"></p>
-  </details>
-
-  <p class="small">ค่าทั้งหมดเป็นการประมาณจากประวัติที่บันทึก ไม่ควรใช้เพื่อคุมกำเนิดหรือวินิจฉัยทางการแพทย์ หากรอบเดือนผิดปกติควรปรึกษาแพทย์</p>
+  <div class="view" data-view="set" hidden>
+    <section class="panel">
+      <h2>การบันทึก</h2>
+      <label class="row"><input type="checkbox" id="extra"> <span>แสดงรายการเสริม (ตกขาว อุณหภูมิ เพศสัมพันธ์ ผลตรวจ)</span></label>
+    </section>
+    <section class="panel">
+      <h2>สำรองข้อมูล</h2>
+      <p class="small">ข้อมูลเก็บอยู่ในเครื่องนี้เท่านั้น ไม่ถูกส่งไปที่ใด หากล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลจะหาย ให้คัดลอกรหัสสำรองเก็บไว้</p>
+      <textarea id="backup" aria-label="รหัสสำรองข้อมูล" placeholder="วางรหัสสำรองที่นี่เพื่อกู้คืน"></textarea>
+      <div class="row">
+        <button class="ghost" id="copy" type="button">คัดลอกรหัสสำรอง</button>
+        <button class="ghost" id="restore" type="button">กู้คืนจากรหัส</button>
+        <button class="ghost" id="wipe" type="button">ลบข้อมูลทั้งหมด</button>
+      </div>
+      <p class="small" id="msg" role="status"></p>
+    </section>
+  </div>
 </main>
+
+<nav class="tabs" aria-label="เมนูหลัก"><div>
+  <button type="button" data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="3.5" r="1.6" fill="currentColor" stroke="none"/></svg>วันนี้</button>
+  <button type="button" data-tab="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>ปฏิทิน</button>
+  <button type="button" data-tab="stats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-7M12 20V5M19 20v-10"/></svg>สถิติ</button>
+  <button type="button" data-tab="set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>ตั้งค่า</button>
+</div></nav>
 
 <script>
 (function(){
@@ -264,10 +305,15 @@ function render(){
     $('big').textContent='–';$('bigsub').textContent='ยังไม่มีข้อมูล เลือกวันแรกที่ประจำเดือนมาในปฏิทิน';
     $('fNext').textContent='–';$('fOv').textContent='–';
   }
+  let ph='เริ่มบันทึกเพื่อดูช่วงของรอบ';
+  if(m.last){const cd=today-m.last.s+1,o=m.cyc-14;
+    if(days.has(today))ph='ช่วงมีประจำเดือน'; else if(cd>m.cyc)ph='เลยกำหนดรอบถัดไป';
+    else if(cd>=o-4&&cd<=o+2)ph='ช่วงไข่ตก โอกาสตั้งครรภ์สูง'; else if(cd<o-4)ph='ช่วงหลังมีประจำเดือน'; else ph='ช่วงก่อนมีประจำเดือน'}
+  $('phase').textContent=ph;
   $('ring').innerHTML=svg;
   $('fCyc').textContent=m.cyc+' วัน'+(m.known?'':' (ค่าเริ่มต้น)');
   $('fLen').textContent=m.len+' วัน'+(m.P.length?'':' (ค่าเริ่มต้น)');
-  $('todayBtn').textContent=days.has(today)&&!demo?'ยกเลิกประจำเดือนของวันนี้':'ประจำเดือนมาวันนี้';
+  $('todayBtn').textContent=days.has(today)&&!demo?'ยกเลิกของวันนี้':'ประจำเดือนมาวันนี้';
   $('monthLbl').textContent=MONF[vm]+' '+(vy+543);
   const first=Date.UTC(vy,vm,1)/DAY, dow=new Date(first*DAY).getUTCDay(), n=new Date(Date.UTC(vy,vm+1,0)).getUTCDate();
   let h=['อา','จ','อ','พ','พฤ','ศ','ส'].map(d=>'<div class="dow">'+d+'</div>').join('');
@@ -334,6 +380,14 @@ $('wipe').addEventListener('click',()=>{
   if(!wipeArmed){wipeArmed=true;$('wipe').textContent='กดอีกครั้งเพื่อยืนยันการลบ';return}
   wipeArmed=false;$('wipe').textContent='ลบข้อมูลทั้งหมด';days=new Set();logs={};demo=false;save();render();$('msg').textContent='ลบข้อมูลแล้ว';
 });
+function show(v){
+  document.querySelectorAll('[data-view]').forEach(s=>s.hidden=s.dataset.view!==v);
+  document.querySelectorAll('[data-tab]').forEach(b=>b.dataset.tab===v?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  window.scrollTo(0,0);
+}
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)show(b.dataset.tab)});
+$('logBtn').addEventListener('click',()=>{sel=today;vy=now.getFullYear();vm=now.getMonth();render();show('cal')});
+$('todayLbl').textContent=['วันอาทิตย์','วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์','วันเสาร์'][now.getDay()]+'ที่ '+now.getDate()+' '+MONF[now.getMonth()]+' '+(now.getFullYear()+543);
 load();render();
 })();
 </script>
